@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.LogininfoMapper">
+	<!--使用redis缓存-->
+	<cache type="redis"/>
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.Logininfo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="username" property="username" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="state" property="state" jdbcType="TINYINT" />
+		<result column="userType" property="userType" />
+	</resultMap>
+	<resultMap type="com.xmg.p2p.base.domain.Logininfo" id="BaseQueryMap">
+		<id column="id" property="id"/>
+		<result column="username" property="username"/>
+	</resultMap>
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.Logininfo"
+		useGeneratedKeys="true" keyProperty="id"> insert into `logininfo`
+		(username, password, state,userType ) values
+		(#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+		#{state,jdbcType=TINYINT},#{userType} )
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.Logininfo"> update
+		`logininfo` set username = #{username,jdbcType=VARCHAR}, password =
+		#{password,jdbcType=VARCHAR}, state = #{state,jdbcType=TINYINT},
+		userType=#{userType} where id = #{id,jdbcType=BIGINT}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long"> select id, username, password, state,userType from
+		`logininfo` where id = #{id,jdbcType=BIGINT}
+	</select>
+	<select id="queryLogininfoByUsername" resultType="int"> select
+		count(id) from logininfo where username=#{username}
+	</select>
+	<select id="login" resultMap="BaseResultMap"> select * from logininfo where
+		username=#{username} and password=#{password} and userType=#{userType}
+	</select>
+	<select id="queryManagerCount" resultType="int"> select count(0) from
+		logininfo where userType=#{userType};
+	</select>
+	<select id="queryArray4Autocomplate" resultType="map">
+		select id,username from logininfo where username like concat(#{keyword},'%')
+	</select>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.SystemDictionaryItem">
+		<id column="id" property="id" />
+		<result column="parentId" property="parentId" />
+		<result column="title" property="title" />
+		<result column="sequence" property="sequence" />
+	</resultMap>
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into systemDictionaryItem
+		(parentId,title,sequence)
+		values
+		(#{parentId},#{title},#{sequence})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.SystemDictionaryItem">
+		update
+		systemDictionaryItem
+		set
+		parentId=#{parentId},
+		title=#{title},
+		sequence=#{sequence}
+		where id = #{id}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select * from systemDictionaryItem where id = #{id}
+	</select>
+	<!-- 根据词典目录id,查询全部明细信息 -->
+	<select id="selectBySn" resultMap="BaseResultMap">
+		select * from
+		systemDictionaryItem where parentId=(
+		select id from systemDictionary where sn =#{sn}
+		)
+	</select>
+	<sql id="base_where">
+		<where>
+			<if test="keyword!=null">
+				and (
+				title like concat('%',#{keyword},'%') or
+				sequence like concat('%',#{keyword},'%')
+				)
+			</if>
+			<if test="parentId>-1">
+				and parentId=#{parentId}
+			</if>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="long">
+		select count(0) from systemDictionaryItem
+		<include refid="base_where" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from systemDictionaryItem
+		<include refid="base_where" />
+		limit #{start},#{pageSize}
+	</select>
+</mapper>

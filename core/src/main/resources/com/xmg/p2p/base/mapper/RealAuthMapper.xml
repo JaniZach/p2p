@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.RealAuthMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.RealAuth">
+		<id column="id" property="id" />
+		<result column="sex" property="sex" />
+		<result column="image2" property="image2" />
+		<result column="image1" property="image1" />
+		<result column="bornDate" property="bornDate" />
+		<result column="remark" property="remark" />
+		<result column="address" property="address" />
+		<result column="auditTime" property="auditTime" />
+		<result column="state" property="state" />
+		<result column="applyTime" property="applyTime" />
+		<result column="realName" property="realName" />
+		<result column="idNumber" property="idNumber" />
+		<!-- 关联关系 -->
+		<!-- <result column="applier" property="applier" /> -->
+		<association property="applier" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="ap_">
+			<id property="id" column="id"/>
+			<result property="username" column="username"/>
+		</association>
+		<!-- <result column="auditor" property="auditor" /> -->
+		<association property="auditor" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="au_">
+			<id property="id" column="id"/>
+			<result property="username" column="username"/>
+		</association>
+	</resultMap>
+	<sql id="base_column">
+		r.id,r.sex,r.image2,r.image1,r.auditor_id,r.bornDate,
+		r.remark,r.address,r.auditTime,r.state,r.applyTime,
+		CONVERT (AES_DECRYPT(r.realName,#{key}) USING 'utf8'),
+		AES_DECRYPT(r.idNumber,#{key}),
+		r.applier_id,
+		ap.id ap_id,ap.username ap_username,
+		au.id au_id,au.username au_username
+	</sql>
+	<delete id="deleteByPrimaryKey" parameterType="long">
+		delete from
+		realAuth where id = #{id}
+	</delete>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into realAuth
+		(sex,image2,image1,auditor_id,bornDate,
+		remark,address,auditTime,state,applyTime,
+		realName,idNumber,applier_id)
+		values
+		(#{r.sex},#{r.image2},#{r.image1},#{r.auditor.id},#{r.bornDate},
+		#{r.remark},#{r.address},#{r.auditTime},#{r.state},#{r.applyTime},
+		ASE_ENCRYPT(#{r.realName},#{key}),#{r.idNumber},#{r.applier.id})
+	</insert>
+	<update id="updateByPrimaryKey">
+		update realAuth
+		set
+		sex=#{r.sex},
+		image2=#{r.image2},
+		image1=#{r.image1},
+		auditor_id=#{r.auditor.id},
+		bornDate=#{r.bornDate},
+		remark=#{r.remark},
+		address=#{r.address},
+		auditTime=#{r.auditTime},
+		state=#{r.state},
+		applyTime=#{r.applyTime},
+		realName=AES_ENCRYPT(#{r.realName},#{key}),
+		idNumber=AES_ENCRYPT(#{r.idNumber},#{key}),
+		applier_id=#{r.applier.id}
+		where id = #{r.id}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select 
+		<include refid="base_column"/>
+		from realAuth r
+		left join logininfo ap on r.applier_id=ap.id
+		left join logininfo au on r.auditor_id=au.id 
+		where r.id = #{id}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select 
+		<include refid="base_column"/>
+		from realAuth r
+		left join logininfo ap on r.applier_id=ap.id
+		left join logininfo au on r.auditor_id=au.id
+	</select>
+	<sql id="base_where">
+		<where>
+			<if test="state>-1">
+				and r.state=#{qo.state}
+			</if>
+			<if test="beginDate!=null">
+				and r.applyTime &gt;=#{qo.beginDate}
+			</if>
+			<if test="endDate!=null">
+				and r.applyTime &lt;=#{qo.endDate}
+			</if>
+		</where>
+	</sql>
+	 <select id="queryPageCount" resultType="long">
+		select count(0) from realAuth r
+		<include refid="base_where" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select 
+		<include refid="base_column"/>
+		from realAuth r
+		left join logininfo ap on r.applier_id=ap.id
+		left join logininfo au on r.auditor_id=au.id
+		<include refid="base_where" />
+		limit #{qo.start},#{qo.pageSize}
+	</select>
+</mapper>

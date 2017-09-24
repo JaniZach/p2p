@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mgrsite" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mgrsite/src/main/webapp/js/My97DatePicker/lang/zh-cn.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/mgrsite/src/main/webapp/js/My97DatePicker/lang/zh-tw.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/mgrsite/src/main/webapp/js/My97DatePicker/skin/whyGreen/datepicker.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/parent" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/website" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/website/src/main/webapp/js/My97DatePicker/lang/zh-cn.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/website/src/main/webapp/js/My97DatePicker/lang/zh-tw.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/website/src/main/webapp/js/My97DatePicker/skin/default/datepicker.css" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/website/src/main/webapp/js/My97DatePicker/skin/whyGreen/datepicker.css" charset="GBK" />
+  </component>
+</project>

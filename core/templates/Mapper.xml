@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="${packageName}.mapper.${className}Mapper">
+	<resultMap id="BaseResultMap" type="${packageName}.domain.${className}">
+		<id column="id" property="id" />
+		<#assign h = fieldMap>
+		<#assign keys = h?keys>
+		<#list keys as key>
+		<result column="${key}" property="${key}" />
+		</#list>
+	</resultMap>
+	<delete id="deleteByPrimaryKey">
+		delete from ${objectName} where id = ${r'#{id}'}
+	</delete>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into ${objectName}
+		(<#list keys as key>${key}<#if key_has_next>,</#if></#list>)
+		values
+		(<#list keys as key>${r'#{'}${key}${r'}'}<#if key_has_next>,</#if></#list>)
+	</insert>
+	<update id="updateByPrimaryKey">
+		update ${objectName}
+		set
+		<#list keys as key>
+		${key}=${r'#{'}${key}${r'}'}<#if key_has_next>,</#if>
+		</#list>
+		where id = ${r'#{id}'}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select * from ${objectName} where id = ${r'#{id}'}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select * from ${objectName}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from ${objectName}
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from ${objectName}
+		<include refid="conditionSql" />
+		limit ${r'#{start}'},${r'#{pageSize}'}
+	</select>
+</mapper>

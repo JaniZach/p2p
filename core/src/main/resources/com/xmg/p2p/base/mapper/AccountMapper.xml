@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.AccountMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.Account">
+		<id column="id" property="id" />
+		<result column="version" property="version" />
+		<result column="tradePassword" property="tradePassword" />
+		<result column="usableAmount" property="usableAmount" />
+		<result column="freezedAmount" property="freezedAmount" />
+		<result column="unReceiveInterest" property="unReceiveInterest" />
+		<result column="unReceivePrincipal" property="unReceivePrincipal" />
+		<result column="unReturnAmount" property="unReturnAmount" />
+		<result column="remainBorrowLimit" property="remainBorrowLimit" />
+		<result column="borrowLimit" property="borrowLimit" />
+	</resultMap>
+	<!-- (1)此处 id由logininfo的id确定;(2)初始化时version为0 -->
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.Account">
+		insert into account
+		(remainBorrowLimit,unReturnAmount,unReceiveInterest,tradePassword,usableAmount,
+		borrowLimit,freezedAmount,unReceivePrincipal,version,id)
+		values
+		(#{remainBorrowLimit},#{unReturnAmount},#{unReceiveInterest},#{tradePassword},#{usableAmount},
+		#{borrowLimit},#{freezedAmount},#{unReceivePrincipal},0,#{id})
+	</insert>
+	<!-- 每次更新,版本+1 -->
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.Account">
+		update account
+		set
+		remainBorrowLimit=#{remainBorrowLimit},
+		unReturnAmount=#{unReturnAmount},
+		unReceiveInterest=#{unReceiveInterest},
+		tradePassword=#{tradePassword},
+		usableAmount=#{usableAmount},
+		borrowLimit=#{borrowLimit},
+		freezedAmount=#{freezedAmount},
+		unReceivePrincipal=#{unReceivePrincipal},
+		version=version+1
+		where id =#{id} and version=#{version}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select * from account where id=#{id}
+	</select>
+</mapper>

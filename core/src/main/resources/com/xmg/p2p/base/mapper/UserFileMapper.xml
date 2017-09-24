@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.UserFileMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.UserFile">
+		<id column="id" property="id" />
+		<result column="remark" property="remark" />
+		<result column="state" property="state" />
+		<result column="auditTime" property="auditTime" />
+		<result column="score" property="score" />
+		<result column="img" property="img" />
+		<result column="applyTime" property="applyTime" />
+		<!-- 关联关系 -->
+		<!-- <result column="auditor_id" property="auditor" /> -->
+		<association property="auditor" javaType="com.xmg.p2p.base.domain.Logininfo"
+			columnPrefix="au_">
+			<id property="id" column="id" />
+			<result property="username" column="username" />
+		</association>
+		<!-- <result column="applier_id" property="applier" /> -->
+		<association property="applier" javaType="com.xmg.p2p.base.domain.Logininfo"
+			columnPrefix="ap_">
+			<id property="id" column="id" />
+			<result property="username" column="username" />
+		</association>
+		<!-- <result column="fileType" property="fileType" /> -->
+		<association property="fileType"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem" columnPrefix="ft_">
+			<id property="id" column="id" />
+			<result property="title" column="title" />
+		</association>
+	</resultMap>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert
+		into userFile
+		(fileType_id,applier_id,remark,auditTime,state,score,img,auditor_id,applyTime)
+		values
+		(#{fileType.id},#{applier.id},#{remark},#{auditTime},#{state},#{score},#{img},#{auditor.id},#{applyTime})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.UserFile">
+		update userFile
+		set
+		fileType_id=#{fileType.id},
+		applier_id=#{applier.id},
+		remark=#{remark},
+		auditTime=#{auditTime},
+		state=#{state},
+		score=#{score},
+		img=#{img},
+		auditor_id=#{auditor.id},
+		applyTime=#{applyTime}
+		where id = #{id}
+	</update>
+	<sql id="base_column">
+		uf.id,uf.fileType_id,uf.applier_id,uf.remark,uf.auditTime,uf.state,uf.score,
+		uf.img,uf.auditor_id,uf.applyTime,
+		au.id au_id,au.username au_username,
+		ap.id ap_id,ap.username ap_username,
+		ft.id ft_id,ft.title ft_title
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select
+		<include refid="base_column" />
+		from userFile uf left join logininfo ap on uf.applier_id = ap.id
+		left
+		join logininfo au on uf.auditor_id = au.id
+		left join
+		systemdictionaryitem ft on uf.fileType_id = ft.id
+		where uf.id = #{id}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from userFile uf left join logininfo ap on uf.applier_id = ap.id
+		left
+		join logininfo au on uf.auditor_id = au.id
+		left join
+		systemdictionaryitem ft on uf.fileType_id = ft.id
+	</select>
+	<select id="queryUserFiles" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from userFile uf
+		left join logininfo ap on uf.applier_id = ap.id
+		left
+		join logininfo au on uf.auditor_id = au.id
+		left join
+		systemdictionaryitem ft on uf.fileType_id = ft.id
+		where
+		uf.applier_id=#{userId}
+		<if test="choice">
+			and uf.fileType_id is not null
+		</if>
+		<if test="!choice">
+			and uf.fileType_id is null
+		</if>
+	</select>
+	<!-- 查看风控材料认证,只能查看已经选择了风控材料类型的对象 -->
+	<sql id="base_where">
+		<where>
+			<if test="state>-1">
+				and r.state=#{state}
+			</if>
+			<if test="beginDate!=null">
+				and r.applyTime &gt;=#{beginDate}
+			</if>
+			<if test="endDate!=null">
+				and r.applyTime &lt;=#{endDate}
+			</if>
+			and uf.fileType_id is not null
+		</where>
+	</sql>
+	<select id="queryCount" resultType="int">
+		select count(0) from userFile uf
+		<include refid="base_where" />
+	</select>
+	<select id="queryListData" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from userFile uf
+		left join logininfo ap on uf.applier_id = ap.id
+		left
+		join logininfo au on uf.auditor_id = au.id
+		left join
+		systemdictionaryitem ft on uf.fileType_id = ft.id
+		<include refid="base_where" />
+		limit #{start},#{pageSize}
+	</select>
+	<!-- 根据用户id,查询其所拥有的全部经过审核的风控资料 -->
+	<select id="queryUserFileAudit" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from userFile uf
+		left join logininfo ap on uf.applier_id = ap.id
+		left
+		join logininfo au on uf.auditor_id = au.id
+		left join
+		systemdictionaryitem ft on uf.fileType_id = ft.id
+		where uf.applier_id=#{userId} and uf.state=1
+	</select>
+</mapper>

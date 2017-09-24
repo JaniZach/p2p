@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.SystemAccountMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.SystemAccount">
+		<id column="id" property="id" />
+		<result column="usableAmount" property="usableAmount" />
+		<result column="freezedAmount" property="freezedAmount" />
+		<result column="version" property="version" />
+	</resultMap>
+	<!-- 注意乐观锁初始值为0 -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into systemAccount
+		(usableAmount,freezedAmount,version)
+		values
+		(#{usableAmount},#{freezedAmount},0)
+	</insert>
+	<!-- 每次更新检查乐观锁,操作后乐观锁+1 -->
+	<update id="updateByPrimaryKey">
+		update systemAccount
+		set
+		version=version+1,
+		usableAmount=#{usableAmount},
+		freezedAmount=#{freezedAmount}
+		where id = #{id} and version = #{version}
+	</update>
+	<select id="selectCurrent" resultMap="BaseResultMap">
+		select id,usableAmount,freezedAmount,version from systemAccount
+	</select>
+</mapper>

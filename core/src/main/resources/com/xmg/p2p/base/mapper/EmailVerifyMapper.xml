@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.EmailVerifyMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.EmailVerify">
+		<id column="id" property="id" />
+		<result column="email" property="email" />
+		<result column="userId" property="userId" />
+		<result column="sendTime" property="sendTime" />
+		<result column="uuid" property="uuid" />
+	</resultMap>
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.EmailVerify"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into emailVerify
+		(email,userId,sendTime,uuid)
+		values
+		(#{email},#{userId},#{sendTime},#{uuid})
+	</insert>
+	<select id="selectByUUID" resultMap="BaseResultMap"
+		parameterType="long">
+		select * from emailVerify where uuid = #{uuid}
+	</select>
+</mapper>

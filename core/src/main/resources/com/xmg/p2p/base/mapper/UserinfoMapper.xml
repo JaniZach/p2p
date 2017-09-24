@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.UserinfoMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.Userinfo">
+		<id column="id" property="id" />
+		<result column="version" property="version" />
+		<result column="phoneNumber" property="phoneNumber" />
+		<result column="bitState" property="bitState" />
+		<result column="idNumber" property="idNumber" />
+		<result column="realName" property="realName" />
+		<result column="score" property="score" />
+		<result column="realAuthId" property="realAuthId"/>
+		<!-- 关联关系 -->
+		<association property="marriage" column="marriage_id"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+			select="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey" />
+		<association property="educationBackground" column="educationBackground_id"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+			select="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey" />
+		<association property="houseCondition" column="houseCondition_id"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+			select="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey" />
+		<association property="kidCount" column="kidCount_id"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+			select="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey" />
+		<association property="incomeGrade" column="incomeGrade_id"
+			javaType="com.xmg.p2p.base.domain.SystemDictionaryItem"
+			select="com.xmg.p2p.base.mapper.SystemDictionaryItemMapper.selectByPrimaryKey" />
+	</resultMap>
+	<!-- (1)id由logininfo中的id控制;(2)初始化时,版本信息为0 -->
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.Userinfo">
+		insert into userinfo
+		(incomeGrade_id,phoneNumber,bitState,realName,marriage_id,
+		educationBackground_id,houseCondition_id,idNumber,kidCount_id,version,id,score,realAuthId)
+		values
+		(#{incomeGrade.id},#{phoneNumber},#{bitState},#{realName},#{marriage.id},
+		#{educationBackground.id},#{houseCondition.id},#{idNumber},#{kidCount.id},0,#{id},#{score},#{realAuthId})
+	</insert>
+	<!-- 每次更新的时候,版本信息加1 -->
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.Userinfo">
+		update userinfo
+		set
+		incomeGrade_id=#{incomeGrade.id},
+		phoneNumber=#{phoneNumber},
+		bitState=#{bitState},
+		realName=#{realName},
+		marriage_id=#{marriage.id},
+		educationBackground_id=#{educationBackground.id},
+		houseCondition_id=#{houseCondition.id},
+		idNumber=#{idNumber},
+		kidCount_id=#{kidCount.id},
+		version=version+1,
+		score=#{score},
+		realAuthId=#{realAuthId}
+		where id =
+		#{id} and
+		version=#{version}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select * from userinfo where id = #{id}
+	</select>
+</mapper>

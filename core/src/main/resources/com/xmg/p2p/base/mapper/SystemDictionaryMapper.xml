@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.SystemDictionaryMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.SystemDictionary">
+		<id column="id" property="id" />
+		<result column="sn" property="sn" />
+		<result column="title" property="title" />
+	</resultMap>
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.SystemDictionary"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into systemDictionary
+		(sn,title)
+		values
+		(#{sn},#{title})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.xmg.p2p.base.domain.SystemDictionary">
+		update
+		systemDictionary
+		set
+		sn=#{sn},
+		title=#{title}
+		where id =
+		#{id}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="long">
+		select * from systemDictionary where id = #{id}
+	</select>
+	<sql id="base_where">
+		<where>
+			<if test="keyword!=null">
+				and (
+				sn like concat('%',#{keyword},'%') or
+				title like
+				concat('%',#{keyword},'%')
+				)
+			</if>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="long">
+		select count(0) from systemDictionary
+		<include refid="base_where" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from systemDictionary
+		<include refid="base_where" />
+		limit #{start},#{pageSize}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select * from systemDictionary
+	</select>
+</mapper>

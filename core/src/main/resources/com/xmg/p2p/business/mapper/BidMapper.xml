@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.BidMapper" >
+  <resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.Bid" >
+    <id column="id" property="id"  />
+	<result column="availableAmount" property="availableAmount"  />
+	<result column="actualRate" property="actualRate"  />
+	<result column="bidRequestState" property="bidRequestState"  />
+	<result column="bidTime" property="bidTime"  />
+	<result column="bidRequestTitle" property="bidRequestTitle"  />
+	<result column="bidRequestId" property="bidRequestId"  />
+	<!-- 关联关系 -->
+	<association property="bidUser" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="bu_">
+		<id column="id" property="id"/>
+		<result column="username" property="username"/>
+	</association>
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into bid 
+    (availableAmount,actualRate,bidRequestId,bidRequestState,bidUser_id,bidTime,bidRequestTitle)
+    values 
+    (#{availableAmount},#{actualRate},#{bidRequestId},#{bidRequestState},#{bidUser.id},#{bidTime},#{bidRequestTitle})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update bid
+    set
+	    availableAmount=#{availableAmount},
+	    actualRate=#{actualRate},
+	    bidRequestId=#{bidRequestId},
+	    bidRequestState=#{bidRequestState},
+	    bidUser_id=#{bidUser.id},
+	    bidTime=#{bidTime},
+	    bidRequestTitle=#{bidRequestTitle}
+    where id = #{id}
+  </update>
+  <!-- 统一设置某一个借款标关联的投资标的状态 -->
+  <update id="updateState">
+  	update bid set
+  		 bidRequestState=#{state}
+  	where bidRequestId=#{rId}
+  </update>
+  <sql id="base_column">
+  	b.id,b.availableAmount,b.actualRate,b.bidRequestId,b.bidRequestState,b.bidUser_id,b.bidTime,b.bidRequestTitle,
+    bu.id bu_id,bu.username bu_username
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select 
+    <include refid="base_column"/>
+    from bid b 
+    left join logininfo bu on b.bidUser_id=bu.id
+    where b.id = #{id}
+  </select>
+  <sql id="conditionSql">
+  	<where>
+  	</where>
+  </sql>
+  <select id="queryPageCount" resultType="long">
+  	select count(0) from bid b
+  	<include refid="conditionSql"/>
+  </select>
+  <select id="queryPageData" resultMap="BaseResultMap">
+  	 select 
+    <include refid="base_column"/>
+    from bid b 
+    left join logininfo bu on b.bidUser_id=bu.id
+  	<include refid="conditionSql"/>
+  	limit #{start},#{pageSize}
+  </select>
+  <select id="queryByBidRequestId" resultMap="BaseResultMap">
+  	select 
+    <include refid="base_column"/>
+    from bid b 
+    left join logininfo bu on b.bidUser_id=bu.id
+    where b.bidRequestId = #{id}
+  </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.PaymentScheduleDetailMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.PaymentScheduleDetail">
+		<id column="id" property="id" />
+		<result column="toLogininfoId" property="toLogininfoId" />
+		<result column="bidRequestId" property="bidRequestId" />
+		<result column="returnType" property="returnType" />
+		<result column="bidAmount" property="bidAmount" />
+		<result column="monthIndex" property="monthIndex" />
+		<result column="principal" property="principal" />
+		<result column="interest" property="interest" />
+		<result column="totalAmount" property="totalAmount" />
+		<result column="bidId" property="bidId" />
+		<result column="paymentScheduleId" property="paymentScheduleId" />
+		<result column="payDate" property="payDate" />
+		<result column="deadline" property="deadline" />
+		<result column="bidRequestTitle" property="bidRequestTitle" />
+		<!-- 关联关系 -->
+		<association property="fromLogininfo" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="fl_">
+			<id property="id" column="id"/>
+			<result property="username" column="username"/>
+		</association>
+	</resultMap>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into paymentScheduleDetail
+		(toLogininfoId,bidRequestId,fromLogininfo_id,returnType,bidAmount,monthIndex,principal,
+		interest,totalAmount,bidId,paymentScheduleId,payDate,deadline,bidRequestTitle)
+		values
+		(#{toLogininfoId},#{bidRequestId},#{fromLogininfo.id},#{returnType},#{bidAmount},#{monthIndex},#{principal},
+		#{interest},#{totalAmount},#{bidId},#{paymentScheduleId},#{payDate},#{deadline},#{bidRequestTitle})
+	</insert>
+	<update id="updateByPrimaryKey">
+		update paymentScheduleDetail
+		set
+		toLogininfoId=#{toLogininfoId},
+		bidRequestId=#{bidRequestId},
+		fromLogininfo_id=#{fromLogininfo.id},
+		returnType=#{returnType},
+		bidAmount=#{bidAmount},
+		monthIndex=#{monthIndex},
+		principal=#{principal},
+		interest=#{interest},
+		totalAmount=#{totalAmount},
+		bidId=#{bidId},
+		paymentScheduleId=#{paymentScheduleId},
+		payDate=#{payDate},
+		deadline=#{deadline},
+		bidRequestTitle=#{bidRequestTitle}
+		where id = #{id}
+	</update>
+	<update id="updateState">
+		update paymentScheduleDetail set 
+		<if test="date!=null">
+			payDate = #{date}
+		</if>
+		where paymentScheduleId = #{id}
+	</update>
+	<sql id="base_column">
+		psd.id,psd.toLogininfoId,psd.bidRequestId,psd.fromLogininfo_id,psd.returnType,psd.bidAmount,psd.monthIndex,psd.principal,
+		psd.interest,psd.totalAmount,psd.bidId,psd.paymentScheduleId,psd.payDate,psd.deadline,psd.bidRequestTitle, 
+		fl.id fl_id,fl.username fl_username
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select 
+		<include refid="base_column"/>
+		from paymentScheduleDetail psd
+		left join logininfo fl on psd.fromLogininfo_id = fl.id
+		where psd.id = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from paymentScheduleDetail psd
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select 
+		<include refid="base_column"/>
+		from paymentScheduleDetail psd
+		left join logininfo fl on psd.fromLogininfo_id = fl.id
+		where psd.id = #{id}
+	</select>
+	<!-- 根据还款对象查询相关的还款明细 -->
+	<select id="listByPaymentScheduleId" resultMap="BaseResultMap">
+		select
+		<include refid="base_column"/> 
+		from paymentScheduleDetail psd
+		left join logininfo fl on psd.fromLogininfo_id = fl.id
+		where psd.paymentScheduleId = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.AccountFlowMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.AccountFlow">
+		<id column="id" property="id" />
+		<result column="amount" property="amount" />
+		<result column="accountId" property="accountId" />
+		<result column="usableAmount" property="usableAmount" />
+		<result column="actionType" property="actionType" />
+		<result column="freezedAmount" property="freezedAmount" />
+		<result column="note" property="note" />
+		<result column="actionTime" property="actionTime" />
+	</resultMap>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into accountFlow
+		(amount,accountId,usableAmount,actionType,freezedAmount,note,actionTime)
+		values
+		(#{amount},#{accountId},#{usableAmount},#{actionType},#{freezedAmount},#{note},#{actionTime})
+	</insert>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select id,amount,accountId,usableAmount,actionType,freezedAmount,note,actionTime 
+		from accountFlow where id = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from accountFlow
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select id,amount,accountId,usableAmount,actionType,freezedAmount,note,actionTime  
+		from accountFlow
+		<include refid="conditionSql" />
+		limit #{start},#{pageSize}
+	</select>
+</mapper>

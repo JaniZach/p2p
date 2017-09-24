@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.BidRequestMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.BidRequest">
+		<id column="id" property="id" />
+		<result column="publishTime" property="publishTime" />
+		<result column="disableDays" property="disableDays" />
+		<result column="applyTime" property="applyTime" />
+		<result column="bidRequestState" property="bidRequestState" />
+		<result column="totalRewardAmount" property="totalRewardAmount" />
+		<result column="returnType" property="returnType" />
+		<result column="version" property="version" />
+		<result column="currentRate" property="currentRate" />
+		<result column="title" property="title" />
+		<result column="disableDate" property="disableDate" />
+		<result column="bidRequestType" property="bidRequestType" />
+		<result column="description" property="description" />
+		<result column="bidRequestAmount" property="bidRequestAmount" />
+		<result column="minBidAmount" property="minBidAmount" />
+		<result column="monthes2Return" property="monthes2Return" />
+		<result column="bidCount" property="bidCount" />
+		<result column="currentSum" property="currentSum" />
+		<result column="note" property="note" />
+		<!-- 关联关系 -->
+		<association property="createUser" javaType="com.xmg.p2p.base.domain.Logininfo"
+			columnPrefix="cu_">
+			<id column="id" property="id" />
+			<result column="username" property="username" />
+		</association>
+		<collection property="bids" column="id"
+			ofType="com.xmg.p2p.business.domain.Bid" select="com.xmg.p2p.business.mapper.BidMapper.queryByBidRequestId" />
+	</resultMap>
+	<!-- 保存操作注意乐观锁的处理 -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id"> insert
+		into bidRequest
+		(publishTime,disableDays,applyTime,bidRequestState,totalRewardAmount,returnType,version,
+		currentRate,title,createUser_id,disableDate,bidRequestType,description,bidRequestAmount,minBidAmount,
+		monthes2Return,bidCount,currentSum,note) values
+		(#{publishTime},#{disableDays},#{applyTime},#{bidRequestState},#{totalRewardAmount},#{returnType},0,
+		#{currentRate},#{title},#{createUser.id},#{disableDate},#{bidRequestType},#{description},#{bidRequestAmount},#{minBidAmount},
+		#{monthes2Return},#{bidCount},#{currentSum},#{note})
+	</insert>
+	<!-- 更新操作,注意乐观锁的处理 -->
+	<update id="updateByPrimaryKey"> update bidRequest set version=version+1,
+		publishTime=#{publishTime}, disableDays=#{disableDays},
+		applyTime=#{applyTime}, bidRequestState=#{bidRequestState},
+		totalRewardAmount=#{totalRewardAmount}, returnType=#{returnType},
+		currentRate=#{currentRate}, title=#{title},
+		createUser_id=#{createUser.id}, disableDate=#{disableDate},
+		bidRequestType=#{bidRequestType}, description=#{description},
+		bidRequestAmount=#{bidRequestAmount}, minBidAmount=#{minBidAmount},
+		monthes2Return=#{monthes2Return}, bidCount=#{bidCount},
+		currentSum=#{currentSum}, note=#{note} where id = #{id} and
+		version=#{version}
+	</update>
+	<sql id="base_column">
+		br.id,br.publishTime,br.disableDays,br.applyTime,br.bidRequestState,br.totalRewardAmount,br.returnType,br.version,
+		br.currentRate,br.title,br.createUser_id,br.disableDate,br.bidRequestType,br.description,br.bidRequestAmount,br.minBidAmount,
+		br.monthes2Return,br.bidCount,br.currentSum,br.note, cu.id
+		cu_id,cu.username cu_username
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from bidRequest br left join logininfo cu on br.createUser_id=cu.id
+		where br.id = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+			<!-- 发标前审核的是所有未审核的借款标 -->
+			<if test="bidRequestState>-1">
+				and bidRequestState=#{bidRequestState}
+			</if>
+			<if test="bidRequestStates!=null">
+				and bidRequestState in 
+				<foreach collection="bidRequestStates" open="(" close=")" separator="," item="temp">
+					#{temp}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="long">
+		select count(0) from bidRequest br
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from bidRequest br left join logininfo cu on br.createUser_id=cu.id
+		<include refid="conditionSql" />
+		<if test="orderBy!=null and orderType!=null">
+			order by br.${orderBy} ${orderType}
+		</if>
+		limit #{start},#{pageSize}
+	</select>
+	<select id="listByUserId" resultMap="BaseResultMap">
+		select
+		<include refid="base_column" />
+		from bidRequest br left join logininfo cu on br.createUser_id=cu.id
+		where br.createUser_id = #{userId}
+	</select>
+</mapper>

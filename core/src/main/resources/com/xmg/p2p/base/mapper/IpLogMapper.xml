@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.base.mapper.IpLogMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.base.domain.IpLog">
+		<id column="id" property="id" />
+		<result column="username" property="username" />
+		<result column="loginTime" property="loginTime" />
+		<result column="state" property="state" />
+		<result column="ip" property="ip" />
+		<result column="userType" property="userType"/>
+	</resultMap>
+	<insert id="insert" parameterType="com.xmg.p2p.base.domain.IpLog"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into ipLog
+		(username,loginTime,state,ip,userType)
+		values
+		(#{username},#{loginTime},#{state},#{ip},#{userType})
+	</insert>
+	<sql id="conditionSql">
+		<where>
+			<if test="beginDate!=null">
+				and loginTime &gt;=#{beginDate}
+			</if>
+			<if test="endDate!=null">
+				and loginTime &lt;=#{endDate}
+			</if>
+			<!-- 登陆成功与否的判断 -->
+			<if test="state>-1">
+				and state=#{state}
+			</if>
+			<if test="userType>-1">
+				and userType=#{userType}
+			</if>
+			<if test="username!=null">
+				and username = #{username}
+			</if>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="long">
+		select count(0) from ipLog
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from ipLog
+		<include refid="conditionSql" />
+		order by loginTime desc
+		limit #{start},#{pageSize}
+	</select>
+</mapper>

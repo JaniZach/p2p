@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.PlatformBankinfoMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.PlatformBankinfo">
+		<id column="id" property="id" />
+		<result column="forkName" property="forkName" />
+		<result column="accountNumber" property="accountNumber" />
+		<result column="accountName" property="accountName" />
+		<result column="bankName" property="bankName" />
+	</resultMap>
+	<delete id="deleteByPrimaryKey">
+		delete from platformBankinfo where id = #{id}
+	</delete>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into platformBankinfo
+		(forkName,accountNumber,accountName,bankName)
+		values
+		(#{forkName},#{accountNumber},#{accountName},#{bankName})
+	</insert>
+	<update id="updateByPrimaryKey">
+		update platformBankinfo
+		set
+		forkName=#{forkName},
+		accountNumber=#{accountNumber},
+		accountName=#{accountName},
+		bankName=#{bankName}
+		where id = #{id}
+	</update>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select * from platformBankinfo where id = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from platformBankinfo
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from platformBankinfo
+		<include refid="conditionSql" />
+		limit #{start},#{pageSize}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select * from platformBankinfo
+	</select>
+</mapper>

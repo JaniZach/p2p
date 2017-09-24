@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.BidRequestAuditMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.BidRequestAudit">
+		<id column="id" property="id" />
+		<result column="auditType" property="auditType" />
+		<result column="remark" property="remark" />
+		<result column="auditTime" property="auditTime" />
+		<result column="state" property="state" />
+		<result column="bidRequestId" property="bidRequestId" />
+		<result column="applyTime" property="applyTime" />
+		<!-- 关联关系 -->
+		<association property="applier" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="ap_" 
+		resultMap="com.xmg.p2p.base.mapper.LogininfoMapper.BaseQueryMap"/>
+		<association property="auditor" javaType="com.xmg.p2p.base.domain.Logininfo" columnPrefix="au_"
+		resultMap="com.xmg.p2p.base.mapper.LogininfoMapper.BaseQueryMap"/>
+	</resultMap>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into bidRequestAudit
+		(auditType,auditor_id,remark,auditTime,state,bidRequestId,applyTime,applier_id)
+		values
+		(#{auditType},#{auditor.id},#{remark},#{auditTime},#{state},#{bidRequestId},#{applyTime},#{applier.id})
+	</insert>
+	<update id="updateByPrimaryKey">
+		update bidRequestAudit
+		set
+		auditType=#{auditType},
+		auditor_id=#{auditor.id},
+		remark=#{remark},
+		auditTime=#{auditTime},
+		state=#{state},
+		bidRequestId=#{bidRequestId},
+		applyTime=#{applyTime},
+		applier_id=#{applier.id}
+		where id = #{id}
+	</update>
+	<sql id="base_column">
+		ba.id, ba.auditType,ba.auditor_id,ba.remark,ba.auditTime,ba.state,ba.bidRequestId,ba.applyTime,ba.applier_id,
+		ap.id ap_id,ap.username ap_username,
+		au.id au_id,au.username au_username
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap">
+		select <include refid="base_column"/> 
+		from bidRequestAudit ba
+		join logininfo ap on ba.applier_id = ap.id
+		left join logininfo au on ba.auditor_id = au.id 
+		where ba.id = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from bidRequestAudit ba
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select <include refid="base_column"/>
+		from bidRequestAudit ba
+		join logininfo ap on ba.applier_id = ap.id
+		left join logininfo au on ba.auditor_id = au.id
+		<include refid="conditionSql"/>
+		limit #{start},#{pageSize}
+	</select>
+	<!-- 根据 借款标的id,查询相关的审核记录 -->
+	<select id="listByBidRequestId" resultMap="BaseResultMap">
+		select <include refid="base_column"/>
+		from bidRequestAudit ba
+		join logininfo ap on ba.applier_id = ap.id
+		left join logininfo au on ba.auditor_id = au.id
+		where ba.bidRequestId = #{bidRequestId}
+	</select>
+</mapper>

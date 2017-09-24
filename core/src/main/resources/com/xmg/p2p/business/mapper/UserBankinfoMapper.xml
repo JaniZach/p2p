@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xmg.p2p.business.mapper.UserBankinfoMapper">
+	<resultMap id="BaseResultMap" type="com.xmg.p2p.business.domain.UserBankinfo">
+		<id column="id" property="id" />
+		<result column="forkName" property="forkName" />
+		<result column="accountNumber" property="accountNumber" />
+		<result column="accountName" property="accountName" />
+		<result column="logininfoId" property="logininfoId" />
+		<result column="bankName" property="bankName" />
+	</resultMap>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id"> insert
+		into userBankinfo
+		(forkName,accountNumber,accountName,logininfoId,bankName)
+		values
+		(#{forkName},#{accountNumber},#{accountName},#{logininfoId},#{bankName})
+	</insert>
+	<update id="updateByPrimaryKey"> update userBankinfo set 
+		forkName=#{forkName},
+		accountNumber=#{accountNumber}, 
+		accountName=#{accountName},
+		logininfoId=#{logininfoId},
+		bankName=#{bankName} 
+		where id = #{id}
+	</update>
+	<select id="selectByUserId" resultMap="BaseResultMap"> 
+		select * 
+		from
+		userBankinfo 
+		where logininfoId = #{id}
+	</select>
+	<sql id="conditionSql">
+		<where>
+		</where>
+	</sql>
+	<select id="queryPageCount" resultType="int">
+		select count(0) from userBankinfo
+		<include refid="conditionSql" />
+	</select>
+	<select id="queryPageData" resultMap="BaseResultMap">
+		select * from userBankinfo
+		<include refid="conditionSql" />
+		limit #{start},#{pageSize}
+	</select>
+</mapper>
